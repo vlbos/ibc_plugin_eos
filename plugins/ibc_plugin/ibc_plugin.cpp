@@ -4445,7 +4445,7 @@ namespace eosio { namespace ibc {
 
          fc::rand_pseudo_bytes( my->node_id.data(), my->node_id.data_size());
 
-         my->keepalive_timer.reset( new boost::asio::steady_timer( my_impl->thread_pool->get_executor() ));
+         my->keepalive_timer.reset( new boost::asio::steady_timer( my->thread_pool->get_executor() ));
          my->ticker();
       } FC_LOG_AND_RETHROW()
    }
@@ -4453,7 +4453,7 @@ namespace eosio { namespace ibc {
    void ibc_plugin::plugin_startup() {
 
        // currently thread_pool only used for server_ioc
-      my_impl->thread_pool.emplace( "net", my->thread_pool_size );
+      my->thread_pool.emplace( "ibc", my->thread_pool_size );
 
       if( my->acceptor ) {
          my->acceptor->open(my->listen_endpoint.protocol());
@@ -4500,8 +4500,8 @@ namespace eosio { namespace ibc {
             my->acceptor.reset(nullptr);
          }
 
-             if( my_impl->thread_pool ) {
-            my_impl->thread_pool->stop();
+             if( my->thread_pool ) {
+            my->thread_pool->stop();
          }
          fc_ilog(logger,"exit shutdown" );
       }

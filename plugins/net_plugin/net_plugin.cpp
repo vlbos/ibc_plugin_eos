@@ -3025,7 +3025,7 @@ namespace eosio {
       my->producer_plug = app().find_plugin<producer_plugin>();
 
       // currently thread_pool only used for server_ioc
-      my->thread_pool.emplace( "net", my->thread_pool_size );
+      my->thread_pool.emplace("net", my->thread_pool_size );
 
       shared_ptr<tcp::resolver> resolver = std::make_shared<tcp::resolver>( my_impl->thread_pool->get_executor() );
       if( my->p2p_address.size() > 0 ) {
