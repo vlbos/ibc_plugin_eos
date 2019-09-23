@@ -337,6 +337,7 @@ namespace eosio { namespace ibc {
       ~connection();
       void initialize();
 
+boost::asio::io_context&                  server_ioc;
       socket_ptr              socket;
 
       fc::message_buffer<1024*1024>    pending_message_buffer;
@@ -1620,7 +1621,8 @@ namespace eosio { namespace ibc {
 
    // --------------- connection ---------------
    connection::connection(string endpoint)
-      : socket(std::make_shared<tcp::socket>(my_impl->thread_pool->get_executor() )),
+      :   server_ioc( my_impl->thread_pool->get_executor() ),
+      socket(std::make_shared<tcp::socket>(my_impl->thread_pool->get_executor() )),
         node_id(),
         last_handshake_recv(),
         last_handshake_sent(),
@@ -1636,7 +1638,8 @@ namespace eosio { namespace ibc {
    }
 
    connection::connection( socket_ptr s )
-      : socket( s ),
+      : server_ioc( my_impl->thread_pool->get_executor() ),
+        socket( s ),
         node_id(),
         last_handshake_recv(),
         last_handshake_sent(),
@@ -4358,7 +4361,7 @@ namespace eosio { namespace ibc {
             EOS_ASSERT( false, chain::plugin_config_exception, "Malformed ibc-relay-private-key: \"${val}\"", ("val", key_spec_pair));
          }
 
-         my->resolver = std::make_shared<tcp::resolver>( my_impl->thread_pool->get_executor() );
+         // my->resolver = std::make_shared<tcp::resolver>( my->thread_pool->get_executor() );
 
          if( options.count( "ibc-listen-endpoint" )) {
             my->p2p_address = options.at( "ibc-listen-endpoint" ).as<string>();
@@ -4368,7 +4371,7 @@ namespace eosio { namespace ibc {
             tcp::resolver::query query( tcp::v4(), host.c_str(), port.c_str());
 
             my->listen_endpoint = *my->resolver->resolve( query );
-            my->acceptor.reset( new tcp::acceptor( my_impl->thread_pool->get_executor() ));
+            // my->acceptor.reset( new tcp::acceptor( my_impl->thread_pool->get_executor() ));
          }
 
          if( options.count( "ibc-server-address" )) {
@@ -4445,7 +4448,7 @@ namespace eosio { namespace ibc {
 
          fc::rand_pseudo_bytes( my->node_id.data(), my->node_id.data_size());
 
-         my->keepalive_timer.reset( new boost::asio::steady_timer( my->thread_pool->get_executor() ));
+         // my->keepalive_timer.reset( new boost::asio::steady_timer( my->thread_pool->get_executor() ));
          my->ticker();
       } FC_LOG_AND_RETHROW()
    }
